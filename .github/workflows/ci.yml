@@ -13,10 +13,15 @@ on:
 permissions:
   contents: read
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/shopeasy-lite
+
 jobs:
   test:
     name: Test and Build
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
 
@@ -46,6 +51,7 @@ jobs:
     name: Build and Push Docker Image
     needs: test
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+
     runs-on: ubuntu-latest
 
     permissions:
@@ -62,7 +68,7 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -74,5 +80,5 @@ jobs:
           build-args: |
             APP_VERSION=${{ github.sha }}
           tags: |
-            ghcr.io/aryan880thakur-2/shopeasy-lite:latest
-            ghcr.io/aryan880thakur-2/shopeasy-lite:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
